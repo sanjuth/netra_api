@@ -22,7 +22,7 @@ import base64
 # cred = credentials.Certificate('netra-attendance-e8411b4ff5db.json')
 # firebase_admin.initialize_app(cred)
 # db = firestore.client()
-
+print("started...........................................")
 def findEncoding(images):
     encodeList=[]
     for img in images:
@@ -83,10 +83,6 @@ app.add_middleware(
 )
 
 
-student_map={"sanjuth":'PK0hn9sm7iJQwYeDtGmf','saiki':'jkwlB44fgclXgTFO5dIV','shiva':'g9puYivoFWyY69vdAqJZ'}
-index_map={"sanjuth":0,'saiki':0,'shiva':0}
-
-
 # routes
 @app.get('/notify/v1/health')
 def get_health():
@@ -118,21 +114,40 @@ async def new_student(file: UploadFile = File(...)):
         "res":"ok"
     }
 
-# @app.get("/get-image")
-# async def get_image(name: str):
+
+@app.delete("/delete-student")
+async def new_student(name: str):
+    myfile="known/"+name+".jpeg"
+    try:
+        os.remove(myfile)
+        print("Deleted ",myfile)
+        return {
+            "res":"done"
+        }
+    except OSError as e:
+        print("Error: %s - %s." % (e.filename, e.strerror))
+        return {
+            "res":"failed"
+        }
+
+
+@app.get("/get-image")
+async def get_image(name: str):
     # with open("known/"+name+".jpeg", "rb") as image_file:
     #     encoded_string = base64.b64encode(image_file.read())
-    # print(encoded_string.decode('utf-8'))
+    # print(encoded_string)
     # return{
     #     "image": encoded_string
     # }
-    # with open("known/"+name+'.jpeg', 'rb') as open_file:
-    #     byte_content = open_file.read()
-    #     base64_bytes = base64.b64encode(byte_content)
-    #     base64_string = base64_bytes.decode('utf-8')
-    #     raw_data = {"image": base64_string}
-    # #     json_data = json.dumps(raw_data, indent=2)
-    #     print(json_data)
-    # return Response(content=json_data, media_type="image/jpeg")
-    # with open("known/"+name+)
+    with open("known/"+name+".jpeg", "rb") as img_file:
+        my_string = base64.b64encode(img_file.read())
+    print(my_string)
+    response ={
+        "image" : my_string
+    }
+    return response
 
+
+
+if __name__=='__main__':
+    uvicorn.run('check:app',host='0.0.0.0',port=8000,log_level="info")
